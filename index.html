@@ -204,13 +204,13 @@ function snakeMove(){
 
 	//游戏规则
 	if(x<0 || y<0 || x>=colNumber || y>=rowNumber){  //撞到墙，游戏结束
-		alert("Game Over!");
+		alert("Gaaaame Over!");
 		clearInterval(moveTimer);
 		return;
 	}
 	for(var i=0;i<snake.length;i++){
 		if(snake[i] == snakeDIVPosition[y][x]){   //撞到自己，游戏结束
-			alert("Game Over!");
+			alert("Gaaaame Over!");
 			clearInterval(moveTimer);
 			return;
 		}
