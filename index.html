@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>Snake Game</title>
+<title></title>
 <style type="text/css">
 * {
 	margin: 0;
@@ -24,7 +24,7 @@ body {
 	position: relative;
 }
 
-h2 {
+h3 {
 	color: #f4f4f4;
 	text-align: center;
 	margin-top: 20px;
@@ -77,40 +77,48 @@ span {
 </head>
 <body>
 <div class="main">
-	<h2>Snake Game</h2>
+	<h3>贪吃蛇游戏</h3>
 	<div id="map"></div>
 	<input type="button" name="name" value="Start" id="Start" />
     <input type="button" name="name" value="Pause" id="Pause" />
 	<input type="button" name="name" value="Refresh" id="Refresh" />
-	<input type="button" name="name" value="Speed" id="Speed" />
+	<input type="button" name="name" value="Speedy" id="Speedy" />
 	<span class="score" style="float: right;">Score : <strong id="score">0</strong></span>
 </div>
 <script>
 
 var map = document.getElementById("map");
 var score = document.getElementById("score");
-var colNum = 25;
-var rowNum = 20;
-var mapW = colNum * 20 +"px";  //设置地图的宽高
-var mapH = rowNum *20 +"px";
-map.style.width = mapW;
-map.style.height = mapH;
-var snakeDiv = []; 
+var colNumber = 25;
+var rowNumber = 20;
 
-/*--------------------------------------map-----------------------------------*/     
-for(var i=0;i<rowNum;i++){   //行
-	var rowDiv = document.createElement("div");
-	rowDiv.className = "row";
-	map.appendChild(rowDiv);
+var mapWidth = colNumber * 20 +"px";  //设置地图的宽高
+var mapHeight = rowNumber *20 +"px";
+map.style.width = mapWidth;
+map.style.height = mapHeight;
+var snakeDIVPosition = []; 
+
+/*--------------------------------------map-----------------------------------*/   
+for(var i=0;i<rowNumber;i++){   //行
+	var rowDIV = document.createElement("div");
+	rowDIV.className = "row";
+	map.appendChild(rowDIV);
 	var rowArray = [];
-	for(var j=0;j<colNum;j++){  //列
-		var colDiv = document.createElement("div");
-		colDiv.className = "col";
-		rowDiv.appendChild(colDiv);
-		rowArray.push(colDiv);
+	for(var j=0;j<colNumber;j++){  //列
+		var colDIV = document.createElement("div");
+		colDIV.className = "col";
+		rowDIV.appendChild(colDIV);
+		rowArray.push(colDIV);
 	}
-	snakeDiv.push(rowArray);
+	snakeDIVPosition.push(rowArray);
 }	
+
+/*--------------------------------------snake-----------------------------------*/
+var snake = []; 
+for(var i=0;i<3;i++){
+	snake[i] = snakeDIVPosition[0][i];
+	snakeDIVPosition[0][i].className = "col activeSnake";
+}
 
 /*--------------------------------------food-----------------------------------*/
 var eggX = 0;
@@ -119,38 +127,21 @@ function random(min,max){  //获取指定范围的随机数，最大值和最小
 	return Math.floor(min + Math.random() * (max - min));
 }
 function createNewEgg(){
-	eggX = random(0,colNum - 1);
-	eggY = random(0,rowNum - 1);
+	eggX = random(0,colNumber - 1);
+	eggY = random(0,rowNumber - 1);
 
-	if(snakeDiv[eggY][eggX].className == "col activeSnake"){
+	if(snakeDIVPosition[eggY][eggX].className == "col activeSnake"){
 		createNewEgg();
 	} else {
-		snakeDiv[eggY][eggX].className = "col egg";
+		snakeDIVPosition[eggY][eggX].className = "col egg";
 	}
 }
 createNewEgg();
 
-
-/*--------------------------------------snake-----------------------------------*/
-var snake = []; 
-for(var i=0;i<3;i++){
-	snake[i] = snakeDiv[0][i];
-	snakeDiv[0][i].className = "col activeSnake";
-}
-
 /*--------------------------------------snake move-----------------------------------*/
-
-var x = 2;
-var y = 0;  //蛇头的起始位置偏移量
-var scoreCount = 0;  
-var eggX = 0;  //记录蛋所在的行位置
-var eggY = 0;  //记录蛋所在的列位置
-
 var snakeDir = "right";
 var changeDir = true;
-var delayTimer = null;
-
-//添加键盘事件对象
+var delayTimer;
 document.onkeydown = function(event){
 	if(!changeDir){
 		return;
@@ -187,6 +178,11 @@ document.onkeydown = function(event){
 	delayTimer = setTimeout(function(){changeDir = true;},300);
 }
 
+//创建移动路径
+var x = 2;
+var y = 0;  //头部起始位置偏移量
+var scoreCount = 0;
+var moveTimer = setInterval("snakeMove()",500);
 function snakeMove(){
 	switch(snakeDir){
 		case "left":
@@ -205,52 +201,51 @@ function snakeMove(){
 		y++;
 		break;
 	}
-    //游戏规则
-	if(x<0 || y<0 || x>=colNum || y>=rowNum){  //撞到墙，游戏结束
-		alert("Gaaaame Over!");
+
+	//游戏规则
+	if(x<0 || y<0 || x>=colNumber || y>=rowNumber){  //撞到墙，游戏结束
+		alert("Game Over!");
 		clearInterval(moveTimer);
 		return;
 	}
 	for(var i=0;i<snake.length;i++){
-		if(snake[i] == snakeDiv[y][x]){   //撞到自己，游戏结束
-			alert("Gaaaame Over!");
+		if(snake[i] == snakeDIVPosition[y][x]){   //撞到自己，游戏结束
+			alert("Game Over!");
 			clearInterval(moveTimer);
 			return;
 		}
 	}
 
-	if(eggX == x && eggY == y){   //吃到蛋长大，随机长出新的蛋
-		snakeDiv[eggY][eggX].className = "col activeSnake";
-		snake.push(snakeDiv[eggY][eggX]); 
+	if(eggX == x && eggY == y){   //吃到食物长大，随机长出新的食物
+		snakeDIVPosition[eggY][eggX].className = "col activeSnake";
+		snake.push(snakeDIVPosition[eggY][eggX]); 
 		scoreCount++; 
 		score.innerHTML = scoreCount;
 		createNewEgg();
 	} else {
 		snake[0].className = "col";  
 		snake.shift();
-		snakeDiv[y][x].className = "col activeSnake";
-		snake.push(snakeDiv[y][x]);
+		snakeDIVPosition[y][x].className = "col activeSnake";
+		snake.push(snakeDIVPosition[y][x]);
 	}
 }
-
-var moveTimer = setInterval("snakeMove()",500);
 
 //点击按钮改变状态
 var pause = document.getElementById("Pause");
 var start = document.getElementById("Start");
 var refresh = document.getElementById("Refresh");
-var speed = document.getElementById("Speed");
-var speedy = 300;
+var speedy = document.getElementById("Speedy");
+var speed = 300;
 
 start.onclick = function(){
 	clearInterval(moveTimer);
-	moveTimer = setInterval("snakeMove()",speedy);
+	moveTimer = setInterval("snakeMove()",speed);
 }
 
-speed.onclick = function(){
+speedy.onclick = function(){
 	clearInterval(moveTimer);
-	speedy = speedy < 300 ? 300 : speedy - 100;
-	moveTimer = setInterval("snakeMove()",speedy);
+	speed = speed < 300 ? 300 : speed - 100;
+	moveTimer = setInterval("snakeMove()",speed);
 }
 
 pause.onclick = function(){
